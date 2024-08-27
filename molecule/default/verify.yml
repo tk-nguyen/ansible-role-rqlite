@@ -1,0 +1,3 @@
+---
+- name: General tests
+  ansible.builtin.import_playbook: "../../tests/default-tests.yml"

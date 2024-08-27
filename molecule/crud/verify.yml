@@ -1,0 +1,3 @@
+---
+- name: Run CRUD tests
+  ansible.builtin.import_playbook: "../../tests/crud-tests.yml"

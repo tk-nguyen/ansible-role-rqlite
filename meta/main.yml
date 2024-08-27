@@ -1,0 +1,12 @@
+galaxy_info:
+  author: Nguyen Thai
+  description: A role to install rqlite
+  role_name: rqlite
+  namespace: tk-nguyen
+  license: MIT
+  min_ansible_version: "2.13.9"
+  galaxy_tags:
+    - linux
+    - debian
+    - database
+dependencies: []

@@ -1,0 +1,64 @@
+---
+# tasks file for rqlite
+- name: Create dedicated group
+  ansible.builtin.group:
+    name: "{{ rqlite_group }}"
+
+- name: Create dedicated user
+  ansible.builtin.user:
+    name: "{{ rqlite_user }}"
+    group: "{{ rqlite_group }}"
+    home: "{{ rqlite_data_dir }}"
+
+- name: Set the hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+# - name: Set /etc/hosts
+#   ansible.builtin.blockinfile:
+#     append_newline: true
+#     path: /etc/hosts
+#     block: |
+#       {% for host in groups['all'] %}
+#       {{ hostvars[host]['ansible_default_ipv4']['address'] }} {{ host }}
+#       {% endfor %}
+
+- name: Download and unpack rqlite archive
+  ansible.builtin.unarchive:
+    dest: /tmp/
+    src: "{{ rqlite_download_url }}"
+    remote_src: true
+  register: rqlite_archive
+
+- name: List all rqlite binaries
+  ansible.builtin.find:
+    paths:
+      - "/tmp/rqlite-v{{ rqlite_version }}-linux-{{ rqlite_architecture }}/"
+  register: rqlite_binaries
+
+- name: Copy rqlite binaries
+  ansible.builtin.copy:
+    dest: /usr/local/bin/
+    mode: "755"
+    remote_src: true
+    src: "{{ item }}"
+  loop: "{{ rqlite_binaries.files | map(attribute='path') }}"
+
+- name: Template out config file
+  ansible.builtin.template:
+    src: "rqlite.env.j2"
+    dest: "/etc/default/rqlite"
+    owner: "{{ rqlite_user }}"
+    group: "{{ rqlite_group }}"
+    mode: "644"
+  notify:
+    - Restart rqlite
+
+- name: Template out the service file
+  ansible.builtin.template:
+    src: "rqlited.service.j2"
+    dest: "/etc/systemd/system/rqlited.service"
+    validate: "systemd-analyze verify %s"
+    mode: "644"
+  notify:
+    - Restart rqlite

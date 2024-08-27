@@ -1,0 +1,7 @@
+---
+# handlers file for rqlite
+- name: Restart rqlite
+  ansible.builtin.systemd_service:
+    name: rqlited
+    state: restarted
+    enabled: true

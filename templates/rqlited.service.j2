@@ -1,0 +1,13 @@
+[Unit]
+Description=Lightweight, user-friendly, distributed relational database built on SQLite
+Documentation=https://rqlite.io/docs/
+After=network-online.target
+
+[Service]
+User={{ rqlite_user }}
+Group={{ rqlite_user }}
+EnvironmentFile=-/etc/default/rqlite
+ExecStart=/usr/local/bin/rqlited $RQLITE_ARGS
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,78 @@
+---
+- name: Run CRUD tests
+  hosts: all
+  tasks:
+    - name: Create a table # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/execute?pretty&timings"
+        method: "POST"
+        body_format: "json"
+        body:
+          - "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY, name TEXT, age INTEGER)"
+      run_once: true
+      register: create_table
+      retries: 5
+
+    - name: Insert an entry into the created table # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/execute?pretty&ver=2"
+        method: "POST"
+        body_format: "json"
+        body:
+          - ["INSERT INTO test(name, age) VALUES(?, ?)", "Fiona", 20]
+      run_once: true
+      register: create_row
+      retries: 5
+
+    - name: Update a row # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/execute?pretty&timings&associative"
+        method: "POST"
+        body_format: "json"
+        body:
+          - ["UPDATE test SET name = 'Bob' WHERE age = 20"]
+      run_once: true
+      register: update_row
+      retries: 5
+
+    - name: Query the table # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/query?pretty&timings&associative"
+        method: "POST"
+        body_format: "json"
+        body:
+          - "SELECT * from test"
+      run_once: true
+      register: query_table
+      retries: 5
+
+    - name: Use unified endpoint # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/request?pretty&timings&associative"
+        method: "POST"
+        body_format: "json"
+        body:
+          - ["INSERT INTO test(name, age) VALUES(?, ?)", "Jeff", 20]
+          - ["INSERT INTO test(name, age) VALUES(?, ?)", "Charlie", 30]
+          - ["SELECT * FROM test"]
+      run_once: true
+      register: use_unified
+      retries: 5
+
+    - name: Delete table # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/execute?pretty&timings&associative"
+        method: "POST"
+        body_format: "json"
+        body:
+          - ["DROP TABLE test"]
+      run_once: true
+      register: drop_table
+      retries: 5
+
+    - name: Show all responses # noqa: run-once[task]
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ [create_table, create_row, update_row, query_table, use_unified, drop_table] | map(attribute='json') }}"
+      run_once: true
+      retries: 5

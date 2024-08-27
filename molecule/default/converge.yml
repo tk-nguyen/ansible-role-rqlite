@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Install rqlite
+      ansible.builtin.include_role:
+        name: "tk-nguyen.rqlite"
