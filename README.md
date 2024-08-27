@@ -30,7 +30,7 @@ rqlite_listen_ip: "{{ ansible_host }}"
 ```yaml
 - hosts: rqlite
   roles:
-      - role: tk-nguyen.rqlite
+    - role: tk-nguyen.rqlite
 ```
 
 ## Tests
