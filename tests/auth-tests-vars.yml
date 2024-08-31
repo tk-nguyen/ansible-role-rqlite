@@ -1,0 +1,7 @@
+rqlite_enable_auth: true
+rqlite_auth_users:
+  - username: "test"
+    password: "test"
+    perms: ["all"]
+  - username: "*"
+    perms: ["join"]

@@ -1,0 +1,3 @@
+---
+- name: Run auth tests
+  ansible.builtin.import_playbook: "../../tests/auth-tests.yml"

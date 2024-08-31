@@ -10,18 +10,18 @@
     group: "{{ rqlite_group }}"
     home: "{{ rqlite_data_dir }}"
 
-- name: Set the hostname
-  ansible.builtin.hostname:
-    name: "{{ inventory_hostname }}"
-
-# - name: Set /etc/hosts
-#   ansible.builtin.blockinfile:
-#     append_newline: true
-#     path: /etc/hosts
-#     block: |
-#       {% for host in groups['all'] %}
-#       {{ hostvars[host]['ansible_default_ipv4']['address'] }} {{ host }}
-#       {% endfor %}
+- name: Create dedicated directories
+  ansible.builtin.file:
+    name: "{{ dir }}"
+    state: directory
+    owner: "{{ rqlite_user }}"
+    group: "{{ rqlite_group }}"
+    mode: "770"
+  loop:
+    - "{{ rqlite_data_dir }}"
+    - "{{ rqlite_config_dir }}"
+  loop_control:
+    loop_var: dir
 
 - name: Download and unpack rqlite archive
   ansible.builtin.unarchive:
@@ -53,6 +53,17 @@
     mode: "644"
   notify:
     - Restart rqlite
+
+- name: Template out authentication file
+  ansible.builtin.template:
+    src: "auth.json.j2"
+    dest: "{{ rqlite_config_dir }}/auth.json"
+    owner: "{{ rqlite_user }}"
+    group: "{{ rqlite_group }}"
+    mode: "660"
+  notify:
+    - Restart rqlite
+  when: rqlite_enable_auth
 
 - name: Template out the service file
   ansible.builtin.template:

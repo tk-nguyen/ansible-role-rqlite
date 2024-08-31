@@ -5,9 +5,16 @@ rqlite_architecture: "{% if ansible_machine == 'x86_64' %}amd64{% else %}{{ ansi
 rqlite_download_url: >-
   https://github.com/rqlite/rqlite/releases/download/v{{ rqlite_version }}/rqlite-v{{ rqlite_version }}-linux-{{ rqlite_architecture }}.tar.gz
 
+rqlite_allow_origin: "*"
 rqlite_user: rqlite
 rqlite_group: rqlite
 rqlite_data_dir: "/var/lib/rqlite"
+rqlite_config_dir: "/etc/rqlite"
 rqlite_http_port: 4001
 rqlite_raft_port: 4002
 rqlite_listen_ip: "{{ ansible_default_ipv4['address'] }}"
+rqlite_enable_auth: false
+rqlite_auth_users:
+  - username: "*"
+    password: ""
+    perms: ["all"]

@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  vars_files:
+    - "../../tests/auth-tests-vars.yml"
+  tasks:
+    - name: Install rqlite
+      ansible.builtin.include_role:
+        name: "tk-nguyen.rqlite"

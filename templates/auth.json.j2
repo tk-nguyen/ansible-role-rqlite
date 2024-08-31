@@ -1,0 +1,3 @@
+{% if rqlite_enable_auth %}
+{{ rqlite_auth_users | to_json }}
+{% endif %}

@@ -1,0 +1,46 @@
+---
+- name: Run auth tests
+  hosts: all
+  vars_files:
+    - auth-tests-vars.yml
+  tasks:
+    - name: Check the rqlite status (valid user)
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/status?pretty"
+        url_username: "{{ (rqlite_auth_users | first)['username'] }}"
+        url_password: "{{ (rqlite_auth_users | first)['password'] }}"
+        force_basic_auth: true
+      retries: 5
+
+    - name: Create a table (valid user) # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/execute?pretty&timings"
+        url_username: "{{ (rqlite_auth_users | first)['username'] }}"
+        url_password: "{{ (rqlite_auth_users | first)['password'] }}"
+        force_basic_auth: true
+        method: "POST"
+        body_format: "json"
+        body:
+          - "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY, name TEXT, age INTEGER)"
+
+    - name: Check the rqlite status (invalid user)
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/status?pretty"
+        url_username: "invalid"
+        url_password: "invalid"
+        force_basic_auth: true
+        status_code:
+          - 401
+
+    - name: Create a table (invalid user) # noqa: run-once[task]
+      ansible.builtin.uri:
+        url: "http://{{ ansible_default_ipv4['address'] }}:4001/db/execute?pretty&timings"
+        url_username: "invalid"
+        url_password: "invalid"
+        force_basic_auth: true
+        method: "POST"
+        body_format: "json"
+        body:
+          - "CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY, name TEXT, age INTEGER)"
+        status_code:
+          - 401

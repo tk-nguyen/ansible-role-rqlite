@@ -7,6 +7,7 @@ After=network-online.target
 User={{ rqlite_user }}
 Group={{ rqlite_user }}
 EnvironmentFile=-/etc/default/rqlite
+WorkingDirectory={{ rqlite_config_dir }}
 ExecStart=/usr/local/bin/rqlited $RQLITE_ARGS
 
 [Install]
